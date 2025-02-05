@@ -24,11 +24,17 @@ const ModeToggle = () => {
           <span className="sr-only">Mudar tema</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
+      <DropdownMenuContent align="center">
+        <DropdownMenuItem
+          onClick={() => setTheme("light")}
+          className="flex items-center justify-center"
+        >
           Claro
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
+        <DropdownMenuItem
+          onClick={() => setTheme("dark")}
+          className="flex items-center justify-center"
+        >
           Escuro
         </DropdownMenuItem>
       </DropdownMenuContent>
