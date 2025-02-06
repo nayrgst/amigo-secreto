@@ -3,13 +3,13 @@
 import {
   Card,
   CardContent,
-  CardHeader,
   CardFooter,
+  CardHeader,
 } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { NewGroupHeader } from "@/app/dashboard/_components/NewGroupHeader";
 import { Separator } from "@/components/ui/separator";
-import { SendButton } from "@/app/dashboard/_components/SendButton";
-import { NewGroupHeader } from "./NewGroupHeader";
+import { SendButton } from "./SendButton";
+import { ReactNode } from "react";
 
 interface CardWrapperProps {
   children: React.ReactNode;
@@ -17,7 +17,9 @@ interface CardWrapperProps {
   className?: string;
   title?: string;
   addParticipant?: () => void;
-  sendButtonClick?: () => void;
+  pending?: boolean;
+  label?: ReactNode;
+  label2?: ReactNode;
 }
 
 export const CardWrapper = ({
@@ -26,26 +28,28 @@ export const CardWrapper = ({
   className,
   title,
   addParticipant,
-  sendButtonClick,
+  pending,
+  label,
+  label2,
 }: CardWrapperProps) => {
   return (
-    <Card className={cn("flex shadow-md", className)}>
-      <section className="w-full p-6">
-        <CardHeader>
-          <NewGroupHeader label={headerLabel} title={title} />
-        </CardHeader>
+    <Card className={className}>
+      <CardHeader>
+        <NewGroupHeader label={headerLabel} title={title} />
+      </CardHeader>
 
-        <CardContent>{children}</CardContent>
+      <CardContent className="space-y-4">{children}</CardContent>
 
-        <Separator className="my-4" />
+      <Separator className="my-4" />
 
-        <CardFooter className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0">
-          <SendButton
-            addParticipant={addParticipant}
-            sendButtonClick={sendButtonClick}
-          />
-        </CardFooter>
-      </section>
+      <CardFooter className="flex w-full flex-col md:flex-row justify-between space-y-4 md:space-y-0">
+        <SendButton
+          label={label}
+          label2={label2}
+          addParticipant={addParticipant}
+          pending={pending}
+        />
+      </CardFooter>
     </Card>
   );
 };
