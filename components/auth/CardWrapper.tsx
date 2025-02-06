@@ -9,7 +9,6 @@ import {
 import { cn } from "@/lib/utils";
 import { LoginHeader } from "@/components/auth/LoginHeader";
 import { BackButton } from "@/components/auth/BackButton";
-import { Separator } from "@/components/ui/separator";
 
 interface CardWrapperProps {
   children: React.ReactNode;
@@ -36,8 +35,6 @@ export const CardWrapper = ({
         </CardHeader>
 
         <CardContent>{children}</CardContent>
-
-        <Separator className="my-4" />
 
         <CardFooter>
           <BackButton label={backButtonLabel} href={backButtonHref} />
