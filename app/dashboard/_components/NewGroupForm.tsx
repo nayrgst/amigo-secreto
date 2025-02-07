@@ -52,7 +52,7 @@ export const NewGroupForm = ({
 
   useEffect(() => {
     if (state.success === false) {
-      toast("Erro", {
+      toast("❌ ERROR:", {
         description: state.message,
         position: "top-center",
       });

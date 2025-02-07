@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import _ from "lodash";
 
 import { createClient } from "@/utils/supabase/server";
 
@@ -20,16 +21,19 @@ type drawGroupProps = {
 };
 
 const drawGroup = (participants: drawGroupProps[]) => {
-  const selectedParticipants: string[] = [];
+  if (participants.length < 2) {
+    return {
+      success: false,
+      message:
+        "É necessário pelo menos 2 participantes para realizar o sorteio.",
+    };
+  }
 
-  return participants.map((participant) => {
-    const validParticipant = participants.filter(
-      (p) => p.id !== participant.id && !selectedParticipants.includes(p.id),
-    );
+  const shuffledParticipants = _.shuffle(participants);
+
+  return shuffledParticipants.map((participant, index) => {
     const assignedParticipant =
-      validParticipant[Math.floor(Math.random() * validParticipant.length)];
-
-    selectedParticipants.push(assignedParticipant.id);
+      shuffledParticipants[(index + 1) % shuffledParticipants.length];
 
     return {
       ...participant,
@@ -57,12 +61,12 @@ export const newGroup = async (
   const emails = formData.getAll("email");
   const groupName = formData.get("groupName");
 
-  const { data: createGroup, error } = await supabase
+  const { data: createGroup, error: groupError } = await supabase
     .from("groups")
     .insert({ name: groupName, owner_id: authUser?.user.id })
     .select()
     .single();
-  if (error) {
+  if (groupError) {
     return {
       success: false,
       message: "Ocorreu um erro ao criar o grupo! Tente novamente mais tarde.",
