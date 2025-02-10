@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import _ from "lodash";
+import { Resend } from "resend";
 
 import { createClient } from "@/utils/supabase/server";
 
@@ -40,6 +41,33 @@ const drawGroup = (participants: drawGroupProps[]) => {
       assigned_to: assignedParticipant.id,
     };
   });
+};
+
+const sendEmailToParticipants = async (
+  participants: drawGroupProps[],
+  groupName: string,
+) => {
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  try {
+    await Promise.all(
+      participants.map((participant) => {
+        resend.emails.send({
+          from: "send@nayr.dev",
+          to: participant.email,
+          subject: `Sorteio de amigo secreto - ${groupName}`,
+          html: `<p>Você está participando do amigo secreto do "${groupName}". <br /> <br />
+          O seu amigo secreto é <strong>${
+            participants.find((p) => p.id === participant.assigned_to)?.name
+          }</strong>!</p>`,
+        });
+      }),
+    );
+
+    return { error: null };
+  } catch {
+    return { error: "Ocorreu um erro ao enviar os emails." };
+  }
 };
 
 export const newGroup = async (
@@ -92,15 +120,37 @@ export const newGroup = async (
 
   const drawedParticipants = drawGroup(createParticipants);
 
+  // Verifica se o sorteio foi bem-sucedido
+  if ("success" in drawedParticipants && !drawedParticipants.success) {
+    return {
+      success: false,
+      message: drawedParticipants.message,
+    };
+  }
+
+  // Agora sabemos que drawedParticipants é do tipo drawGroupProps[]
   const { error: errorDrawn } = await supabase
     .from("participants")
-    .upsert(drawedParticipants);
+    .upsert(drawedParticipants as drawGroupProps[]);
 
   if (errorDrawn) {
     return {
       success: false,
       message:
         "Ocorreu um erro ao sortear os participantes do grupo! Tente novamente mais tarde.",
+    };
+  }
+
+  const { error: errorResend } = await sendEmailToParticipants(
+    drawedParticipants as drawGroupProps[],
+    groupName as string,
+  );
+
+  if (errorResend) {
+    return {
+      success: false,
+      message:
+        "Ocorreu um erro ao enviar os emails de sorteio! Tente novamente mais tarde.",
     };
   }
 
