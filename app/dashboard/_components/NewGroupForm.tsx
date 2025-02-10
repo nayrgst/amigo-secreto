@@ -62,7 +62,9 @@ export const NewGroupForm = ({
   return (
     <form action={formAction}>
       <CardWrapper
+        showFooter
         title="Novo Grupo"
+        classTitle="text-3xl font-semibold"
         headerLabel="Convide seus amigos para participar!"
         className="w-full max-w-2xl mx-auto"
         addParticipant={addParticipant}

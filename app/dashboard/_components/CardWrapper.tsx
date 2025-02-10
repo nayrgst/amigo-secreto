@@ -13,13 +13,16 @@ import { ReactNode } from "react";
 
 interface CardWrapperProps {
   children: React.ReactNode;
-  headerLabel: string;
+  headerLabel?: string;
   className?: string;
-  title?: string;
+  title?: ReactNode;
   addParticipant?: () => void;
   pending?: boolean;
   label?: ReactNode;
   label2?: ReactNode;
+  showFooter?: boolean;
+  classTitle?: string;
+  classHeader?: string;
 }
 
 export const CardWrapper = ({
@@ -31,25 +34,36 @@ export const CardWrapper = ({
   pending,
   label,
   label2,
+  showFooter,
+  classTitle,
+  classHeader,
 }: CardWrapperProps) => {
   return (
     <Card className={className}>
-      <CardHeader>
-        <NewGroupHeader label={headerLabel} title={title} />
+      <CardHeader className={classHeader}>
+        <NewGroupHeader
+          label={headerLabel}
+          title={title}
+          classTitle={classTitle}
+        />
       </CardHeader>
 
       <CardContent className="space-y-4">{children}</CardContent>
 
-      <Separator className="my-4" />
+      {showFooter && (
+        <>
+          <Separator className="my-4" />
 
-      <CardFooter className="flex w-full flex-col md:flex-row justify-between space-y-4 md:space-y-0">
-        <SendButton
-          label={label}
-          label2={label2}
-          addParticipant={addParticipant}
-          pending={pending}
-        />
-      </CardFooter>
+          <CardFooter className="flex w-full flex-col md:flex-row justify-between space-y-4 md:space-y-0">
+            <SendButton
+              label={label}
+              label2={label2}
+              addParticipant={addParticipant}
+              pending={pending}
+            />
+          </CardFooter>
+        </>
+      )}
     </Card>
   );
 };
