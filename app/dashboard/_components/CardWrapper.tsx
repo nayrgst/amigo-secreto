@@ -10,6 +10,7 @@ import { NewGroupHeader } from "@/app/dashboard/_components/NewGroupHeader";
 import { Separator } from "@/components/ui/separator";
 import { SendButton } from "./SendButton";
 import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 interface CardWrapperProps {
   children: React.ReactNode;
@@ -39,7 +40,7 @@ export const CardWrapper = ({
   classHeader,
 }: CardWrapperProps) => {
   return (
-    <Card className={className}>
+    <Card className={cn("shadow-md", className)}>
       <CardHeader className={classHeader}>
         <NewGroupHeader
           label={headerLabel}

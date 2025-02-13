@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader, Mail, MessageCircle, MessageCircleX } from "lucide-react";
 import { useState, useTransition } from "react";
 
-// import { login } from "@/actions/login";
+import { login } from "@/actions/login";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { loginSchema } from "@/schemas/loginSchema";
@@ -98,7 +98,7 @@ export const LoginForm = () => {
                 <AlertTitle className="text-gray-300">
                   Falha ao enviar e-mail.
                 </AlertTitle>
-                <AlertDescription>{error.message}</AlertDescription>
+                <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 

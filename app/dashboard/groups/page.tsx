@@ -1,41 +1,39 @@
-import Link from "next/link";
-import { Calendar } from "lucide-react";
+// import Link from "next/link";
+// import { Calendar } from "lucide-react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { createClient } from "@/utils/supabase/server";
-import { CardWrapper } from "@/app/dashboard/_components/CardWrapper";
+// import { CardWrapper } from "@/app/dashboard/_components/CardWrapper";
 
 const GroupPage = async () => {
-  const supabase = await createClient();
-  const { data: authUser } = await supabase.auth.getUser();
+  // const { data: authUser } = await supabase.auth.getUser();
 
-  if (!authUser?.user?.email) {
-    return <p>Usuário não autenticado!</p>;
-  }
+  // if (!authUser?.user?.email) {
+  //   return <p>Usuário não autenticado!</p>;
+  // }
 
-  const { data, error } = await supabase
-    .from("groups")
-    .select(
-      `
-      id,
-      name,
-      owner_id,
-      created_at,
-      participants!inner(email)
-      `,
-    )
-    .eq("participants.email", authUser.user.email);
+  // const { data, error } = await supabase
+  //   .from("groups")
+  //   .select(
+  //     `
+  //     id,
+  //     name,
+  //     owner_id,
+  //     created_at,
+  //     participants!inner(email)
+  //     `,
+  //   )
+  //   .eq("participants.email", authUser.user.email);
 
-  console.log("Dados retornados:", data);
-  console.log("Erro:", error);
+  // console.log("Dados retornados:", data);
+  // console.log("Erro:", error);
 
-  if (error) {
-    return <p>Erro ao carregar os grupos: {error.message}</p>;
-  }
+  // if (error) {
+  //   return <p>Erro ao carregar os grupos: {error.message}</p>;
+  // }
 
-  if (!data || data.length === 0) {
-    return <p>Nenhum grupo encontrado para este usuário.</p>;
-  }
+  // if (!data || data.length === 0) {
+  //   return <p>Nenhum grupo encontrado para este usuário.</p>;
+  // }
 
   return (
     <section className="container mx-auto p-4">
@@ -43,7 +41,7 @@ const GroupPage = async () => {
 
       <ScrollArea className="h-[calc(100vh-200px)]">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {data.map((group) => (
+          {/* {data.map((group) => (
             <Link
               key={group.id}
               href={`/dashboard/groups/${group.id}`}
@@ -60,7 +58,7 @@ const GroupPage = async () => {
                 </div>
               </CardWrapper>
             </Link>
-          ))}
+          ))} */}
         </div>
       </ScrollArea>
     </section>
