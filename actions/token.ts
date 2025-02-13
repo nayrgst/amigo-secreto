@@ -16,12 +16,14 @@ export const newVerification = async (token: string) => {
     return { error: "Token expirado!" };
   }
 
-  const existingUser = await db.user.findUnique({
+  let existingUser = await db.user.findUnique({
     where: { email: existingToken.email },
   });
 
   if (!existingUser) {
-    return { error: "Usuário não encontrado!" };
+    existingUser = await db.user.create({
+      data: { email: existingToken.email },
+    });
   }
 
   await db.user.update({

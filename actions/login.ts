@@ -25,10 +25,6 @@ export const login = async (values: z.infer<typeof loginSchema>) => {
     redirect("/dashboard");
   }
 
-  await db.user.create({
-    data: { email },
-  });
-
   const verificationToken = await generateVerificationToken(email);
 
   await sendVerificationEmail(verificationToken.email, verificationToken.token);
