@@ -2,6 +2,8 @@
 
 import { db } from "@/lib/db";
 import { getVerificationTokenByToken } from "@/data/verification-token";
+import { SignJWT } from "jose";
+import { cookies } from "next/headers";
 
 export const newVerification = async (token: string) => {
   const existingToken = await getVerificationTokenByToken(token);
@@ -35,6 +37,20 @@ export const newVerification = async (token: string) => {
   });
 
   await db.verificationToken.delete({ where: { id: existingToken.id } });
+
+  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+  const sessionToken = await new SignJWT({ userId: existingUser.id })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("7d")
+    .sign(secret);
+
+  (await cookies()).set("session-token", sessionToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7,
+  });
 
   return { success: "E-mail verificado com sucesso!" };
 };

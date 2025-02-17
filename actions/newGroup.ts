@@ -1,50 +1,33 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import _ from "lodash";
+import { z } from "zod";
 import { Resend } from "resend";
 
-import { createClient } from "@/utils/supabase/server";
+import { db } from "@/lib/db";
+import { newGroupSchema } from "@/schemas/newGroupSchema";
+import { getServerSession } from "@/lib/getServerSession";
 
-export type newGroupState = {
-  success: boolean | null;
-  message?: string;
-};
-
-type drawGroupProps = {
+interface AssignedParticipant {
   id: string;
-  group_id: string;
-  name: string;
   email: string;
-  assigned_to: string;
-  created_at: string;
-  updated_at: string;
-};
+  name: string;
+  assignedToId: string;
+}
 
-const drawGroup = (participants: drawGroupProps[]) => {
-  if (participants.length < 2) {
-    return {
-      success: false,
-      message:
-        "É necessário pelo menos 2 participantes para realizar o sorteio.",
+export type NewGroupResponse =
+  | {
+      success: true;
+      message: string;
+      groupId: string;
+    }
+  | {
+      success: false;
+      message: string;
     };
-  }
-
-  const shuffledParticipants = _.shuffle(participants);
-
-  return shuffledParticipants.map((participant, index) => {
-    const assignedParticipant =
-      shuffledParticipants[(index + 1) % shuffledParticipants.length];
-
-    return {
-      ...participant,
-      assigned_to: assignedParticipant.id,
-    };
-  });
-};
 
 const sendEmailToParticipants = async (
-  participants: drawGroupProps[],
+  participants: AssignedParticipant[],
   groupName: string,
 ) => {
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -52,14 +35,16 @@ const sendEmailToParticipants = async (
   try {
     await Promise.all(
       participants.map((participant) => {
-        resend.emails.send({
-          from: "send@nayr.dev",
+        const assignedParticipant = participants.find(
+          (p) => p.id === participant.assignedToId,
+        );
+
+        return resend.emails.send({
+          from: "amigo-secreto@nayr.dev",
           to: participant.email,
           subject: `Sorteio de amigo secreto - ${groupName}`,
           html: `<p>Você está participando do amigo secreto do "${groupName}". <br /> <br />
-          O seu amigo secreto é <strong>${
-            participants.find((p) => p.id === participant.assigned_to)?.name
-          }</strong>!</p>`,
+          O seu amigo secreto é <strong>${assignedParticipant?.name}</strong>!</p>`,
         });
       }),
     );
@@ -71,88 +56,89 @@ const sendEmailToParticipants = async (
 };
 
 export const newGroup = async (
-  _previousState: newGroupState,
-  formData: FormData,
-) => {
-  const supabase = await createClient();
+  values: z.infer<typeof newGroupSchema>,
+): Promise<NewGroupResponse> => {
+  try {
+    const validateFields = newGroupSchema.safeParse(values);
+    if (!validateFields.success) {
+      return { success: false, message: "Dados inválidos!" };
+    }
+    const { groupName, participants } = validateFields.data;
 
-  const { data: authUser, error: authError } = await supabase.auth.getUser();
+    const user = await getServerSession();
 
-  if (authError) {
+    if (!user) {
+      return { success: false, message: "Usuário não autenticado!" };
+    }
+
+    const newGroup = await db.group.create({
+      data: {
+        name: groupName,
+        ownerId: user.id,
+      },
+      include: { participants: true },
+    });
+
+    await db.participant.createMany({
+      data: participants.map((participant) => ({
+        name: participant.name,
+        email: participant.email,
+        groupId: newGroup.id,
+      })),
+      skipDuplicates: true,
+    });
+
+    const createdParticipants = await db.participant.findMany({
+      where: { groupId: newGroup.id },
+    });
+
+    if (createdParticipants.length < 3) {
+      return {
+        success: false,
+        message:
+          "É necessário pelo menos 3 participantes para realizar o sorteio.",
+      };
+    }
+
+    const shuffledParticipants = _.shuffle(createdParticipants);
+    const participantsWithAssignment = shuffledParticipants.map(
+      (participant, index) => {
+        const assignedTo =
+          shuffledParticipants[(index + 1) % shuffledParticipants.length];
+        return { ...participant, assignedToId: assignedTo.id };
+      },
+    );
+
+    await db.$transaction(
+      participantsWithAssignment.map((participant) =>
+        db.participant.update({
+          where: { id: participant.id },
+          data: { assignedToId: participant.assignedToId },
+        }),
+      ),
+    );
+
+    const emailResult = await sendEmailToParticipants(
+      participantsWithAssignment,
+      groupName,
+    );
+    if (emailResult.error) {
+      return {
+        success: false,
+        message: emailResult.error,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Grupo e sorteio realizados com sucesso!",
+      groupId: newGroup.id,
+    };
+  } catch (error) {
+    console.error("Erro ao criar grupo:", error);
     return {
       success: false,
-      message: "Ocorreu um erro ao criar o grupo!",
+      message: "Erro ao criar o grupo, tente novamente!",
     };
   }
-
-  const names = formData.getAll("name");
-  const emails = formData.getAll("email");
-  const groupName = formData.get("groupName");
-
-  const { data: createGroup, error: groupError } = await supabase
-    .from("groups")
-    .insert({ name: groupName, owner_id: authUser?.user.id })
-    .select()
-    .single();
-  if (groupError) {
-    return {
-      success: false,
-      message: "Ocorreu um erro ao criar o grupo! Tente novamente mais tarde.",
-    };
-  }
-
-  const participants = names.map((name, index) => ({
-    name,
-    email: emails[index],
-    group_id: createGroup.id,
-  }));
-
-  const { data: createParticipants, error: createParticipantsError } =
-    await supabase.from("participants").insert(participants).select();
-
-  if (createParticipantsError) {
-    return {
-      success: false,
-      message:
-        "Ocorreu um erro ao adicionar os participantes ao grupo! Tente novamente mais tarde.",
-    };
-  }
-
-  const drawedParticipants = drawGroup(createParticipants);
-
-  // Verifica se o sorteio foi bem-sucedido
-  if ("success" in drawedParticipants && !drawedParticipants.success) {
-    return {
-      success: false,
-      message: drawedParticipants.message,
-    };
-  }
-
-  // Agora sabemos que drawedParticipants é do tipo drawGroupProps[]
-  const { error: errorDrawn } = await supabase
-    .from("participants")
-    .upsert(drawedParticipants as drawGroupProps[]);
-
-  if (errorDrawn) {
-    return {
-      success: false,
-      message:
-        "Ocorreu um erro ao sortear os participantes do grupo! Tente novamente mais tarde.",
-    };
-  }
-
-  const { error: errorResend } = await sendEmailToParticipants(
-    drawedParticipants as drawGroupProps[],
-    groupName as string,
-  );
-
-  if (errorResend) {
-    return {
-      success: false,
-      message:
-        "Ocorreu um erro ao enviar os emails de sorteio! Tente novamente mais tarde.",
-    };
-  }
-
-  redirect(`/dashboard/groups/${createGroup.id}`);
 };

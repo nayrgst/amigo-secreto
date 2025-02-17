@@ -1,42 +1,42 @@
-import { createClient } from "@/utils/supabase/server";
+// import { createClient } from "@/utils/supabase/server";
 import { CardWrapper } from "@/app/dashboard/_components/CardWrapper";
 import { Separator } from "@/components/ui/separator";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+// import {
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableHead,
+//   TableHeader,
+//   TableRow,
+// } from "@/components/ui/table";
 import {
   TextRevealCard,
   TextRevealCardTitle,
 } from "@/components/ui/text-reveal";
 
 const GroupIdPage = async ({ params }: { params: { id: string } }) => {
-  const supabase = await createClient();
-  const { data: authUser } = await supabase.auth.getUser();
+  // const supabase = await createClient();
+  // const { data: authUser } = await supabase.auth.getUser();
 
-  const groupId = (await params).id;
+  // const groupId = (await params).id;
 
-  const { data, error } = await supabase
-    .from("groups")
-    .select(`name, participants (*)`)
-    .eq("id", groupId)
-    .single();
+  // const { data, error } = await supabase
+  //   .from("groups")
+  //   .select(`name, participants (*)`)
+  //   .eq("id", groupId)
+  //   .single();
 
-  if (error) {
-    return <p>Erro ao carregar o grupo!</p>;
-  }
+  // if (error) {
+  //   return <p>Erro ao carregar o grupo!</p>;
+  // }
 
-  const assignedParticipantId = data?.participants?.find(
-    (p) => authUser?.user?.email === p.email,
-  )?.assigned_to;
+  // const assignedParticipantId = data?.participants?.find(
+  //   (p) => authUser?.user?.email === p.email,
+  // )?.assigned_to;
 
-  const assignedParticipant = data.participants.find(
-    (p) => p.id === assignedParticipantId,
-  );
+  // const assignedParticipant = data.participants.find(
+  //   (p) => p.id === assignedParticipantId,
+  // );
 
   return (
     <section className="container mx-auto py-6">
@@ -47,7 +47,7 @@ const GroupIdPage = async ({ params }: { params: { id: string } }) => {
           <>
             Grupo:{" "}
             <span className=" font-light underline decoration-yellow-500">
-              {data.name}
+              {/* {data.name} */}
             </span>
           </>
         }
@@ -55,7 +55,7 @@ const GroupIdPage = async ({ params }: { params: { id: string } }) => {
       >
         <h2 className="text-xl font-semibold mb-4 ">Participantes:</h2>
 
-        <Table>
+        {/* <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Nome:</TableHead>
@@ -71,13 +71,14 @@ const GroupIdPage = async ({ params }: { params: { id: string } }) => {
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+        </Table> */}
 
         <Separator className="my-6" />
 
         <TextRevealCard
           text="Toque para revelar!"
-          revealText={assignedParticipant?.name}
+          // revealText={assignedParticipant?.name}
+          revealText={"jones"}
         >
           <TextRevealCardTitle>Seu amigo secreto:</TextRevealCardTitle>
         </TextRevealCard>

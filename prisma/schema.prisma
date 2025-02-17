@@ -23,27 +23,26 @@ model User {
 }
 
 model Group {
-  id            String        @id @default(uuid())
-  name          String        @unique
-  owner         User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  ownerId       String
-  createdAt     DateTime      @default(now()) 
-  updatedAt     DateTime      @updatedAt
-  participants  Participant[]
+  id          String       @id @default(uuid())
+  name        String
+  owner       User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId     String
+  createdAt   DateTime     @default(now())
+  participants Participant[]
 }
 
 model Participant {
   id            String        @id @default(uuid())
-  groups        Group         @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId       String               
+  group         Group         @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId       String
   name          String
   email         String
   assignedTo    Participant?  @relation("ParticipantAssignment", fields: [assignedToId], references: [id])
-  assignedToId  String?           
-  createdAt     DateTime      @default(now()) 
-  updatedAt     DateTime      @updatedAt
+  assignedToId  String?
+  assignedFrom  Participant[] @relation("ParticipantAssignment")
+  createdAt     DateTime      @default(now())
 
-  assignedParticipants Participant[] @relation("ParticipantAssignment")
+  @@unique([email, groupId])
 }
 
 

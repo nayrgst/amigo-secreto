@@ -1,15 +1,10 @@
 import { NewGroupForm } from "@/app/dashboard/_components/NewGroupForm";
 
-const newGroupsPage = async () => {
-  const loggedUser = {
-    id: "123",
-    email: "tee@example.com",
-  };
-
+const NewGroupsPage = async () => {
   return (
     <section className="mt-20">
-      <NewGroupForm loggedUser={loggedUser} />
+      <NewGroupForm />
     </section>
   );
 };
-export default newGroupsPage;
+export default NewGroupsPage;
