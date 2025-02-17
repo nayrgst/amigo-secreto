@@ -186,6 +186,7 @@ export const NewGroupForm = () => {
                   size={"icon"}
                   className="-translate-y-2"
                   onClick={() => removeParticipant(index)}
+                  disabled={isPending}
                 >
                   <Trash2 className="size-5" />
                 </Button>
