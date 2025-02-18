@@ -1,10 +1,8 @@
 import { GroupDetails } from "@/app/dashboard/_components/GroupDetails";
 
-const GroupIdPage = async ({
-  params,
-}: {
-  params: { id: string } | Promise<{ id: string }>;
-}) => {
+type Params = Promise<{ id: string }>;
+
+const GroupIdPage = async ({ params }: { params: Params }) => {
   const resolveParams = await params;
   return (
     <section className="container mx-auto py-6">
