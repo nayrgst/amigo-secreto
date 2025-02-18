@@ -38,8 +38,7 @@ const GroupPage = async () => {
         <AlertCircle className="size-4" />
         <AlertTitle>Nenhum grupo encontrado.</AlertTitle>
         <AlertDescription>
-          Crie um novo grupo ou entre em um existente para começar a usar o
-          Sorteio Família.
+          Crie um novo grupo ou entre em um existente.
         </AlertDescription>
       </Alert>
     );
