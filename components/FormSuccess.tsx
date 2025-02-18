@@ -9,7 +9,7 @@ export const FormSuccess = ({ message }: FormSucessProps) => {
 
   return (
     <section className="flex bg-emerald-500/15 p-3 rounded-md text-sm text-emerald-500 items-center gap-x-2">
-      <CircleCheckIcon className="h-4 w-4" />
+      <CircleCheckIcon className="size-4" />
       <p>{message}</p>
     </section>
   );

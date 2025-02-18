@@ -31,7 +31,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="system">
-          {children}
+          <div vaul-drawer-wrapper="" className="bg-background">
+            {children}
+          </div>
         </ThemeProvider>
         <Toaster theme="dark" />
       </body>

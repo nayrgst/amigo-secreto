@@ -1,66 +1,54 @@
-// import Link from "next/link";
-// import { Calendar } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
-import { ScrollArea } from "@/components/ui/scroll-area";
-// import { CardWrapper } from "@/app/dashboard/_components/CardWrapper";
+import { db } from "@/lib/db";
+import { getServerSession } from "@/lib/getServerSession";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { GroupsList } from "@/app/dashboard/_components/GroupsList";
 
 const GroupPage = async () => {
-  // const { data: authUser } = await supabase.auth.getUser();
+  const user = await getServerSession();
 
-  // if (!authUser?.user?.email) {
-  //   return <p>Usuário não autenticado!</p>;
-  // }
+  if (!user) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="size-4" />
+        <AlertTitle>Erro</AlertTitle>
+        <AlertDescription>
+          Você não está autenticado. Tente novamente!
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
-  // const { data, error } = await supabase
-  //   .from("groups")
-  //   .select(
-  //     `
-  //     id,
-  //     name,
-  //     owner_id,
-  //     created_at,
-  //     participants!inner(email)
-  //     `,
-  //   )
-  //   .eq("participants.email", authUser.user.email);
+  const groups = await db.group.findMany({
+    where: {
+      participants: {
+        some: {
+          email: user.email,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    include: { participants: true },
+  });
 
-  // console.log("Dados retornados:", data);
-  // console.log("Erro:", error);
-
-  // if (error) {
-  //   return <p>Erro ao carregar os grupos: {error.message}</p>;
-  // }
-
-  // if (!data || data.length === 0) {
-  //   return <p>Nenhum grupo encontrado para este usuário.</p>;
-  // }
+  if (!groups || groups.length === 0) {
+    return (
+      <Alert variant="default">
+        <AlertCircle className="size-4" />
+        <AlertTitle>Nenhum grupo encontrado.</AlertTitle>
+        <AlertDescription>
+          Crie um novo grupo ou entre em um existente para começar a usar o
+          Sorteio Família.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <section className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">Meus Grupos</h1>
-
-      <ScrollArea className="h-[calc(100vh-200px)]">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {/* {data.map((group) => (
-            <Link
-              key={group.id}
-              href={`/dashboard/groups/${group.id}`}
-              className="cursor-pointer"
-            >
-              <CardWrapper
-                title={group.name}
-                classHeader={"pb-2"}
-                className={"overflow-hidden"}
-              >
-                <div className="flex items-center text-muted-foreground text-sm mb-2">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Criado em: {new Date(group.created_at).toLocaleDateString()}
-                </div>
-              </CardWrapper>
-            </Link>
-          ))} */}
-        </div>
-      </ScrollArea>
+      <GroupsList groups={groups} />
     </section>
   );
 };

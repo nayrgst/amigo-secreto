@@ -1,4 +1,4 @@
-import { toast } from "sonner";
+import { AlertCircle } from "lucide-react";
 
 import { db } from "@/lib/db";
 import { Separator } from "@/components/ui/separator";
@@ -6,6 +6,7 @@ import { getServerSession } from "@/lib/getServerSession";
 import { CardWrapper } from "@/app/dashboard/_components/CardWrapper";
 import { ParticipantsTable } from "@/app/dashboard/_components/ParticipantsTable";
 import { SecretFriendCard } from "@/app/dashboard/_components/SecretFriendCard";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface GroupDetailsProps {
   groupId: string;
@@ -15,7 +16,13 @@ export const GroupDetails = async ({ groupId }: GroupDetailsProps) => {
   const user = await getServerSession();
 
   if (!user) {
-    toast.error("Usuário não autenticado!");
+    <Alert variant="destructive">
+      <AlertCircle className="size-4" />
+      <AlertTitle>Erro</AlertTitle>
+      <AlertDescription>
+        Você não está autenticado. Tente novamente!
+      </AlertDescription>
+    </Alert>;
   }
 
   const group = await db.group.findUnique({
@@ -24,7 +31,13 @@ export const GroupDetails = async ({ groupId }: GroupDetailsProps) => {
   });
 
   if (!group) {
-    toast.error("Grupo não encontrado!");
+    <Alert variant="destructive">
+      <AlertCircle className="size-4" />
+      <AlertTitle>Erro</AlertTitle>
+      <AlertDescription>
+        Grupo não encontrado. Tente novamente!
+      </AlertDescription>
+    </Alert>;
     return null;
   }
 
