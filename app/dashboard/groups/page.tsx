@@ -1,9 +1,9 @@
 import { AlertCircle } from "lucide-react";
 
 import { db } from "@/lib/db";
+import { GroupsList } from "@/app/dashboard/_components/GroupsList";
 import { getServerSession } from "@/lib/getServerSession";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { GroupsList } from "@/app/dashboard/_components/GroupsList";
 
 const GroupPage = async () => {
   const user = await getServerSession();
