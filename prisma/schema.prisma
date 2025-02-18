@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id @default(uuid())
+  email         String        @unique
+  emailVerified DateTime? 
+  createdAt     DateTime      @default(now()) 
+  updatedAt     DateTime      @updatedAt
+  groups        Group[]
+}
+
+model Group {
+  id          String       @id @default(uuid())
+  name        String
+  owner       User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId     String
+  createdAt   DateTime     @default(now())
+  participants Participant[]
+}
+
+model Participant {
+  id            String        @id @default(uuid())
+  group         Group         @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId       String
+  name          String
+  email         String
+  assignedTo    Participant?  @relation("ParticipantAssignment", fields: [assignedToId], references: [id])
+  assignedToId  String?
+  assignedFrom  Participant[] @relation("ParticipantAssignment")
+  createdAt     DateTime      @default(now())
+
+  @@unique([email, groupId])
+}
+
+
+model VerificationToken {
+  id            String        @id @default(uuid())
+  email         String
+  token         String        @unique
+  expires       DateTime
+
+  @@unique([email, token])
+}

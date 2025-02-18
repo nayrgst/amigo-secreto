@@ -1,33 +1,34 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { z } from "zod";
+import { redirect } from "next/navigation";
 
-export type LoginState = {
-  success: boolean | null;
-  message?: string;
-};
+import { db } from "@/lib/db";
+import { loginSchema } from "@/schemas/loginSchema";
+import { generateVerificationToken } from "@/lib/tokens";
+import { sendVerificationEmail } from "@/lib/resend";
 
-export async function login(previousState: LoginState, formData: FormData) {
-  const supabase = await createClient();
+export const login = async (values: z.infer<typeof loginSchema>) => {
+  const validateFields = loginSchema.safeParse(values);
 
-  const email = formData.get("email") as string;
-
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/confirm `,
-    },
-  });
-
-  if (error) {
-    return {
-      success: false,
-      message: error.message,
-    };
+  if (!validateFields.success) {
+    return { error: "Email invalido!" };
   }
 
-  return {
-    success: true,
-    message: "Verifique seu e-mail para confirmar o login.",
-  };
-}
+  const { email } = validateFields.data;
+
+  const existingUser = await db.user.findUnique({
+    where: { email },
+  });
+
+  if (existingUser) {
+    await generateVerificationToken(email);
+    redirect("/dashboard");
+  }
+
+  const verificationToken = await generateVerificationToken(email);
+
+  await sendVerificationEmail(verificationToken.email, verificationToken.token);
+
+  return { success: "E-mail enviado!" };
+};

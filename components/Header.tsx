@@ -1,7 +1,8 @@
-import { Gift, Users } from "lucide-react";
 import Link from "next/link";
-import ModeToggle from "./ToggleMode";
-import { Button } from "./ui/button";
+import { Gift, Users } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import ModeToggle from "@/components/ToggleMode";
 
 export const Header = () => {
   return (
@@ -17,13 +18,15 @@ export const Header = () => {
           </Link>
 
           <nav className="flex items-center space-x-4">
-            <Link
-              href="/dashboard/groups"
-              className="flex gap-2 items-center text-foreground text-sm"
-            >
-              <Users className="h-5 w-5" />
-              Meus Grupos
-            </Link>
+            <Button variant={"ghost"}>
+              <Link
+                href="/dashboard/groups"
+                className="flex gap-2 items-center text-foreground text-sm"
+              >
+                <Users className="size-5" />
+                Meus Grupos
+              </Link>
+            </Button>
             <Button asChild variant={"outline"}>
               <Link href={"/dashboard/groups/new"}>Novo grupo</Link>
             </Button>
