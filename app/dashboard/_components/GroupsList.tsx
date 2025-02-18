@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Calendar } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CardWrapper } from "@/app/dashboard/_components/CardWrapper";
+import { deleteGroup } from "@/actions/deleteGroup";
+import { Calendar, Trash2 } from "lucide-react";
 import { ParticipantsTable } from "./ParticipantsTable";
 import {
   Credenza,
@@ -43,6 +45,22 @@ export const GroupsList = ({ groups }: GroupsListProps) => {
   const handleOpen = (group: Group) => {
     setSelectedGroup(group);
     setIsOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedGroup) return;
+
+    try {
+      const res = await deleteGroup(selectedGroup.id);
+
+      if (res.success === true) {
+        setIsOpen(false);
+        router.refresh();
+        toast.success(res.message);
+      }
+    } catch {
+      toast.error("Ocorreu um erro ao excluir o grupo.");
+    }
   };
 
   useEffect(() => {
@@ -106,6 +124,10 @@ export const GroupsList = ({ groups }: GroupsListProps) => {
               }
             >
               Ver mais
+            </Button>
+
+            <Button variant={"destructive"} onClick={handleDelete}>
+              <Trash2 className="size-5" /> Excluir
             </Button>
           </CredenzaFooter>
         </CredenzaContent>

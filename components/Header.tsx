@@ -33,7 +33,6 @@ export const Header = () => {
             <ModeToggle />
           </nav>
         </section>
-        <section className="flex justify-end w-full"></section>
       </section>
     </header>
   );
