@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 import {
   Table,
   TableBody,
@@ -12,6 +14,8 @@ interface ParticipantsTableProps {
 }
 
 export const ParticipantsTable = ({ participants }: ParticipantsTableProps) => {
+  const drawnParticipants = _.shuffle(participants);
+
   return (
     <Table>
       <TableHeader>
@@ -22,7 +26,7 @@ export const ParticipantsTable = ({ participants }: ParticipantsTableProps) => {
       </TableHeader>
 
       <TableBody>
-        {participants.map((participant) => (
+        {drawnParticipants.map((participant) => (
           <TableRow key={participant.id}>
             <TableCell>{participant.name}</TableCell>
             <TableCell>{participant.email}</TableCell>
