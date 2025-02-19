@@ -7,12 +7,13 @@ import { db } from "@/lib/db";
 import { loginSchema } from "@/schemas/loginSchema";
 import { generateVerificationToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/lib/resend";
+import { getServerSession } from "@/lib/getServerSession";
 
 export const login = async (values: z.infer<typeof loginSchema>) => {
   const validateFields = loginSchema.safeParse(values);
 
   if (!validateFields.success) {
-    return { error: "Email invalido!" };
+    return { error: "Email inválido!" };
   }
 
   const { email } = validateFields.data;
@@ -21,9 +22,14 @@ export const login = async (values: z.infer<typeof loginSchema>) => {
     where: { email },
   });
 
-  if (existingUser) {
-    await generateVerificationToken(email);
-    redirect("/dashboard");
+  const userSession = await getServerSession();
+
+  if (userSession) {
+    return redirect("/dashboard");
+  }
+
+  if (!existingUser) {
+    return { error: "Usuário não encontrado!" };
   }
 
   const verificationToken = await generateVerificationToken(email);
