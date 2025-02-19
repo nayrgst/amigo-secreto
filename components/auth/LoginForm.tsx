@@ -20,11 +20,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useRouter } from "next/navigation";
 
 export const LoginForm = () => {
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
+  const route = useRouter();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -41,6 +43,9 @@ export const LoginForm = () => {
         setError(data?.error);
         setSuccess(data?.success);
       });
+      if (success) {
+        route.push("/dashboard");
+      }
     });
   };
 
