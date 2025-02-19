@@ -2,9 +2,10 @@
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader, Mail, MessageCircle, MessageCircleX } from "lucide-react";
 import { useState, useTransition } from "react";
+import { Loader, Mail, MessageCircle, MessageCircleX } from "lucide-react";
 
 import { login } from "@/actions/login";
 import { Input } from "@/components/ui/input";
@@ -20,7 +21,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useRouter } from "next/navigation";
 
 export const LoginForm = () => {
   const [error, setError] = useState<string | undefined>("");
