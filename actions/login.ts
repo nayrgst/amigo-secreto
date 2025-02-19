@@ -16,6 +16,8 @@ export const login = async (values: z.infer<typeof loginSchema>) => {
   const { email } = validateFields.data;
 
   const userSession = await getServerSession();
+  console.log(userSession);
+
   if (userSession) {
     redirect("/dashboard");
   }
