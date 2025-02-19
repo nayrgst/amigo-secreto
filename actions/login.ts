@@ -19,7 +19,12 @@ export const login = async (values: z.infer<typeof loginSchema>) => {
   console.log(userSession);
 
   if (userSession) {
-    redirect("/dashboard");
+    try {
+      redirect("/dashboard");
+    } catch (error) {
+      console.error("Erro ao redirecionar:", error);
+      return { error: "Falha ao redirecionar." };
+    }
   }
 
   const verificationToken = await generateVerificationToken(email);
