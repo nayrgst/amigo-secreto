@@ -1,3 +1,4 @@
+"force-dynamic";
 "use server";
 
 import { z } from "zod";
@@ -16,15 +17,9 @@ export const login = async (values: z.infer<typeof loginSchema>) => {
   const { email } = validateFields.data;
 
   const userSession = await getServerSession();
-  console.log(userSession);
 
   if (userSession) {
-    try {
-      redirect("/dashboard");
-    } catch (error) {
-      console.error("Erro ao redirecionar:", error);
-      return { error: "Falha ao redirecionar." };
-    }
+    redirect("/dashboard");
   }
 
   const verificationToken = await generateVerificationToken(email);
