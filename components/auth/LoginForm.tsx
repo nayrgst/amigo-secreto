@@ -40,12 +40,13 @@ export const LoginForm = () => {
 
     startTransition(() => {
       login(values).then((data) => {
-        setError(data?.error);
-        setSuccess(data?.success);
+        if (data?.error) {
+          setError(data?.error);
+        } else if (data?.success) {
+          setSuccess(data?.success);
+          route.push("/dashboard");
+        }
       });
-      if (success) {
-        route.push("/dashboard");
-      }
     });
   };
 
