@@ -1,8 +1,7 @@
-"force-dynamic";
 "use server";
 
 import { z } from "zod";
-import { redirect } from "next/navigation";
+// import { redirect } from "next/navigation";
 
 import { loginSchema } from "@/schemas/loginSchema";
 import { generateVerificationToken } from "@/lib/tokens";
@@ -19,7 +18,7 @@ export const login = async (values: z.infer<typeof loginSchema>) => {
   const userSession = await getServerSession();
 
   if (userSession) {
-    redirect("/dashboard");
+    return { redirect: true };
   }
 
   const verificationToken = await generateVerificationToken(email);
