@@ -1,7 +1,6 @@
 "use server";
 
 import { z } from "zod";
-// import { redirect } from "next/navigation";
 
 import { loginSchema } from "@/schemas/loginSchema";
 import { generateVerificationToken } from "@/lib/tokens";
