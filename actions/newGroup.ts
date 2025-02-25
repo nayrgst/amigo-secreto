@@ -145,7 +145,10 @@ export const newGroup = async (
     console.error("Erro ao criar grupo:", error);
     return {
       success: false,
-      message: "Erro ao criar o grupo, tente novamente!",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Erro ao criar o grupo, tente novamente!",
     };
   }
 };
